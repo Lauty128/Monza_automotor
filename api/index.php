@@ -1,14 +1,19 @@
 <?php 
 
+# ------------ Importar configuraciones
+require 'config/app.php';
+
 # ------------ Importar código de flightphp
 require 'vendor/flightphp/flight/Flight.php';
 
+$PDO;
 
- #******************* ENDPOINTS **************************
-    
+ #******************* ENDPOINTS **************************    
     # --- Obtener todos los vehiculos
     Flight::route('/vehicles', function(){
-        echo 'Hola mundo desde "Vehicles"';
+        include 'controller/vehicles.controller.php';
+        $response = VehiclesController::getAll();
+        Flight::json($response);
     });
     
     # --- Obtener un vehiculo
