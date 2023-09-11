@@ -8,6 +8,7 @@ require 'model/vehicles.model.php';
 
 # Utils
 include 'utils/query.util.php';
+include 'utils/data.util.php';
 
 
 class VehiclesController{
@@ -21,21 +22,20 @@ class VehiclesController{
         
     //------------- Handler queries
         # The order of the data is defined for the parameters or it takes a default value
-        //$order = (isset($_GET['order'])) ? formaterOrder($_GET['order']) : constant('ORDER');
+        //$order = (isset($_GET['order'])) ? Util\get_order($_GET['order']) : constant('ORDER');
         
         # Format the search options recived for parameters
-        //$options = formaterOptions($_GET ?? []);
-        
+        $options = Util\formaterOptions($_GET ?? []);
+
         # Get the offset by multypling the page by the limit
         $offset = $page * $limit;
                 
-        
         //-------------- Send variables to the Model
         # Get total of data
-        $total = Vehicles::getTotal();
+        $total = Vehicles::getTotal($options);
 
         # Get vehicles
-        $vehicles = Vehicles::getAll($offset, $limit);
+        $vehicles = Vehicles::getAll($offset, $limit, $options);
 
         if(is_int($total) && !isset($vehicles['Error'])){
             return [

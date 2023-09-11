@@ -41,17 +41,29 @@ $PDO = $database->connect();
 
 class Vehicles{
 
-    static function getTotal():int | array
+    static function getTotal(array $options):int | array
     {
         # Call to the global variable $PDO
         global $PDO;
 
         # if $PDO is of type PDO, the following code will be executed
-        if($PDO instanceof PDO){
-            # Create query and execute
-            $query = $PDO->query('SELECT COUNT(id_vehicle) as total FROM vehicle');
+        if($PDO instanceof PDO)
+        {
+        #----------- Create query
+            $sql = "SELECT COUNT(v.id_vehicle) as total FROM vehicle v ";
 
-            # Get the response of the 'total' field
+            if(isset($options['mark']) || isset($options['word'])){
+                $sql .= 'JOIN mark m ON m.id_mark = v.id_mark ';
+            }
+            
+            if($options !== null){
+                $sql .= " ".Util\get_where($options);
+            }
+            
+        #----------- Execute query
+            $query = $PDO->query($sql);
+
+        #----------- Get the response of the 'total' field
             $response = $query->fetch(PDO::FETCH_ASSOC)['total'];
 
             # return response
@@ -68,7 +80,7 @@ class Vehicles{
     }
 
     
-    static function getAll(int $offset, int $limit) : array
+    static function getAll(int $offset, int $limit, $options = null) : array
     {
         # Call to the global variable $PDO
         global $PDO;
@@ -77,20 +89,23 @@ class Vehicles{
         if($PDO instanceof PDO){
             #------------------- CREATE QUERY
                 # Create the basic query
-                $sql = 'SELECT m.mark,v.version,v.model FROM vehicle v
-                JOIN mark m ON m.id_mark = v.id_mark';
+                $sql = 'SELECT m.mark,v.version,v.model FROM vehicle v ';
 
                 # Add variations to the query for filter the search
-                // if($options != null){
-                //     $sql .= ' '.defineQueryByOptionsForProviders($options, 'p');
-                // }
+                if(isset($options['mark']) || isset($options['word'])){
+                    $sql .= 'JOIN mark m ON m.id_mark = v.id_mark ';
+                }
+                
+                if($options !== null){
+                    $sql .= " ".Util\get_where($options);
+                }
 
                 # Order the results
                 //$sql .= ' '.defineOrder($order);
 
                 # Add the pagination
                 $sql .= ' LIMIT :limit OFFSET :offset';
-                
+                //var_dump($sql); exit();
             #-------------------- PREPARE AND EXECUTE QUERY
                 # Preparamos the query
                 $query = $PDO->prepare($sql);
