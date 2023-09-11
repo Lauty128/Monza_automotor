@@ -1,4 +1,10 @@
 <?php
+    # namespace
+    namespace DB;
+
+    # Uses
+    use PDO, PDOException;
+
 
     class Database{
         
@@ -16,7 +22,8 @@
             $this->password = constant('DB_PASSWORD');
         }
         
-        function connect(){
+        function connect(): PDO | PDOException
+        {
             try{
                 # configurar  la conexion con los datos de la clase
                 $conection = "mysql:host=".$this->server.";dbname=".$this->dbname;

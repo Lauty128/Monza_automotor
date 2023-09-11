@@ -12,8 +12,8 @@
     date_default_timezone_set("America/Argentina/Buenos_Aires");
 
 //----- Connection to database
-    define('DB_SERVER','host');
-    define('DB_NAME','db-name');
+    define('DB_SERVER','localhost');
+    define('DB_NAME','monza_automotor');
     define('DB_USER','root');
     define('DB_PASSWORD','');
 
