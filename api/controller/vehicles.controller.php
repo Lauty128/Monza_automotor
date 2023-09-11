@@ -29,9 +29,28 @@ class VehiclesController{
         # Get the offset by multypling the page by the limit
         $offset = $page * $limit;
                 
-    //-------------- Send variables to the Model
-        $data = Vehicles::getAll($offset, $limit);
-        return $data;            
+        
+        //-------------- Send variables to the Model
+        # Get total of data
+        $total = Vehicles::getTotal();
+
+        # Get vehicles
+        $vehicles = Vehicles::getAll($offset, $limit);
+
+        if(is_int($total) && !isset($vehicles['Error'])){
+            return [
+                'page' => ((int)$page + 1),
+                'limit' => (int)$limit,
+                'total' => (int)$total,
+                'data' => $vehicles
+            ];
+        }
+        else{
+            return [
+                'Error' => 500,
+                'Message' => 'An error was detected'
+            ];
+        }
     }
 
 }

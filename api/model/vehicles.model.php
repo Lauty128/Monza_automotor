@@ -41,6 +41,33 @@ $PDO = $database->connect();
 
 class Vehicles{
 
+    static function getTotal():int | array
+    {
+        # Call to the global variable $PDO
+        global $PDO;
+
+        # if $PDO is of type PDO, the following code will be executed
+        if($PDO instanceof PDO){
+            # Create query and execute
+            $query = $PDO->query('SELECT COUNT(id_vehicle) as total FROM vehicle');
+
+            # Get the response of the 'total' field
+            $response = $query->fetch(PDO::FETCH_ASSOC)['total'];
+
+            # return response
+            return $response;
+        }
+        # if $PDO is of type PDOException, the following code will be executed
+        else if($PDO instanceof PDOException){
+            return [
+                'Error'=>500,
+                'Message'=>'Ocurrio un error al conectarse a la base de datos',
+                'Error-Message' => $PDO->getMessage()
+            ];
+        }
+    }
+
+    
     static function getAll(int $offset, int $limit) : array
     {
         # Call to the global variable $PDO
