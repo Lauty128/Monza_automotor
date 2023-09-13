@@ -22,11 +22,11 @@ class VehiclesController{
         
     //------------- Handler queries
         # The order of the data is defined for the parameters or it takes a default value
-        //$order = (isset($_GET['order'])) ? Util\get_order($_GET['order']) : constant('ORDER');
+        $order = (isset($_GET['order'])) ? Util\get_order($_GET['order']) : '';
         
         # Format the search options recived for parameters
         $options = Util\formaterOptions($_GET ?? []);
-
+        
         # Get the offset by multypling the page by the limit
         $offset = $page * $limit;
                 
@@ -35,7 +35,7 @@ class VehiclesController{
         $total = Vehicles::getTotal($options);
 
         # Get vehicles
-        $vehicles = Vehicles::getAll($offset, $limit, $options);
+        $vehicles = Vehicles::getAll($offset, $limit, $options, $order);
 
         if(is_int($total) && !isset($vehicles['Error'])){
             return [

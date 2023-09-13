@@ -3,25 +3,6 @@
 #Namespace
 namespace Util;
 
-$orderType = [
-    'M_ASC' => [
-        "type" => 'ASC',
-        "field" => 'v.model'
-    ],
-    'M_DESC' => [
-        "type" => 'DESC',
-        "field" => 'v.model'
-    ],
-    'P_ASC' => [
-        "type" => 'ASC',
-        "field" => 'price'
-    ],
-    'P_DESC' => [
-        "type" => 'DESC',
-        "field" => 'price'
-    ],
-];
-
 
 #   @var array $options =
 #           $word : string
@@ -60,7 +41,15 @@ function get_join(array $options){
 
 function get_order(string $option) : string
 {
-    return 'ORDER BY '.$option["field"].' '.$option["type"];
+    $orderType = [
+        'M-ASC' => 'ORDER BY v.model ASC',
+        'M-DESC' => 'ORDER BY v.model DESC'
+        // 'P-ASC' => 'ORDER BY v.price ASC',
+        // 'P-DESC' => 'ORDER BY v.price DESC',
+    ];
+
+    if(!isset($orderType[$option])){ return ''; }
+    return $orderType[$option];
 }
 
 function get_pagination(int $offset ,int $limit) : string

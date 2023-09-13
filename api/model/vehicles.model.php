@@ -41,7 +41,7 @@ $PDO = $database->connect();
 
 class Vehicles{
 
-    static function getTotal(array $options):int | array
+    static function getTotal(array | null $options):int | array
     {
         # Call to the global variable $PDO
         global $PDO;
@@ -80,7 +80,7 @@ class Vehicles{
     }
 
     
-    static function getAll(int $offset, int $limit, $options = null) : array
+    static function getAll(int $offset, int $limit, array | null $options, string $order) : array
     {
         # Call to the global variable $PDO
         global $PDO;
@@ -89,19 +89,16 @@ class Vehicles{
         if($PDO instanceof PDO){
             #------------------- CREATE QUERY
                 # Create the basic query
-                $sql = 'SELECT m.mark,v.version,v.model FROM vehicle v ';
-
-                # Add variations to the query for filter the search
-                if(isset($options['mark']) || isset($options['word'])){
-                    $sql .= 'JOIN mark m ON m.id_mark = v.id_mark ';
-                }
+                $sql = "SELECT v.id_vehicle,v.id_mark,m.mark,v.version,v.model,v.engine,v.image,v.traction,v.price
+                FROM vehicle v 
+                JOIN mark m ON m.id_mark = v.id_mark";
                 
                 if($options !== null){
                     $sql .= " ".Util\get_where($options);
                 }
 
                 # Order the results
-                //$sql .= ' '.defineOrder($order);
+                $sql .= ' '.$order;
 
                 # Add the pagination
                 $sql .= ' LIMIT :limit OFFSET :offset';
@@ -131,5 +128,10 @@ class Vehicles{
                 'Error-Message' => $PDO->getMessage()
             ];
         }
+    }
+
+    static function getOne($id)
+    {
+
     }
 }
