@@ -32,12 +32,13 @@ use DB\Database;
 use Util;
 
 #----- BD CONNECTION
-require 'config/database.php';
-$database = new Database();
-$PDO = $database->connect();
+if(!isset($PDO)){
+    require 'config/database.php';
+    $database = new Database();
+    $PDO = $database->connect();
+}
 
 #Includes
-
 
 class Vehicles{
 
@@ -52,6 +53,7 @@ class Vehicles{
         #----------- Create query
             $sql = "SELECT COUNT(v.id_vehicle) as total FROM vehicle v ";
 
+            # This creates the JOIN with the mark table in case you need its
             if(isset($options['mark']) || isset($options['word'])){
                 $sql .= 'JOIN mark m ON m.id_mark = v.id_mark ';
             }
@@ -130,8 +132,96 @@ class Vehicles{
         }
     }
 
+    static function getVehiclesByTag(int $offset, int $limit, array | null $options, string $id, string $order)
+    {
+        # Call to the global variable $PDO
+        global $PDO;
+
+        # if $PDO is of type PDO, the following code will be executed
+        if($PDO instanceof PDO){
+            #------------------- CREATE QUERY
+                # Create the basic query
+                $sql = "SELECT v.id_vehicle,v.id_mark,m.mark,v.version,v.model,v.engine,v.image,v.traction,v.price
+                FROM vehicle_tag vt
+                JOIN vehicle v ON vt.id_vehicle = v.id_vehicle
+                JOIN mark m ON m.id_mark = v.id_mark ";
+
+                if($options == null){ $sql.= 'WHERE vt.id_tag = :id'; }
+                else{ 
+                    $sql .= " ".Util\get_where($options);
+                    $sql.= ' AND vt.id_tag = :id';
+                }
+
+                # Order the results
+                $sql .= ' '.$order;
+
+                # Add the pagination
+                $sql .= ' LIMIT :limit OFFSET :offset';
+            #-------------------- PREPARE AND EXECUTE QUERY
+                # Preparamos the query
+                $query = $PDO->prepare($sql);
+
+                # Define the parameters values
+                $query->bindParam(':id', $id);
+                $query->bindParam(':limit', $limit);
+                $query->bindParam(':offset', $offset);
+
+                # EXecute the query
+                $query->execute();
+
+                # Get array with the received data
+                $data = $query->fetchAll(PDO::FETCH_ASSOC);
+
+            # Return response;
+            return $data;
+        }
+        # if $PDO is of type PDOException, the following code will be executed
+        else if($PDO instanceof PDOException){
+            return [
+                'Error'=>500,
+                'Message'=>'Ocurrio un error al conectarse a la base de datos',
+                'Error-Message' => $PDO->getMessage()
+            ];
+        }
+    }
+
     static function getOne($id)
     {
+        # Call to the global variable $PDO
+        global $PDO;
 
+        # if $PDO is of type PDO, the following code will be executed
+        if($PDO instanceof PDO){
+            #------------------- CREATE QUERY
+                # Create the basic query
+                $sql = "SELECT v.*, m.mark
+                FROM vehicle v
+                JOIN mark m ON m.id_mark = v.id_mark
+                WHERE v.id_vehicle = :id";
+
+            #-------------------- PREPARE AND EXECUTE QUERY
+                # Preparamos the query
+                $query = $PDO->prepare($sql);
+
+                # Define the parameters values
+                $query->bindParam(':id', $id);
+
+                # EXecute the query
+                $query->execute();
+
+                # Get array with the received data
+                $data = $query->fetch(PDO::FETCH_ASSOC);
+
+            # Return response;
+            return $data;
+        }
+        # if $PDO is of type PDOException, the following code will be executed
+        else if($PDO instanceof PDOException){
+            return [
+                'Error'=>500,
+                'Message'=>'Ocurrio un error al conectarse a la base de datos',
+                'Error-Message' => $PDO->getMessage()
+            ];
+        }
     }
 }
