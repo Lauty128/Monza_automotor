@@ -8,7 +8,6 @@
 
     # ------------ Is more important instance this variable
     $PDO;
-
  #******************* ENDPOINTS **************************    
     # --- Get all vehicles
     Flight::route('/vehicles', function(){
@@ -19,11 +18,18 @@
     
     # --- Get one vehicle
     Flight::route('/vehicles/@id', function($id){
-        echo 'Hola mundo desde "Vehicles" ('.$id.')';
+        include 'controller/vehicles.controller.php';
+        $response = VehiclesController::getOne($id);
+        Flight::json($response);
     });
     
     # --- Get all categories
     Flight::route('/marks', function(){
+        echo 'Hola mundo desde "Categories"';
+    });
+
+    # --- Get all categories
+    Flight::route('/tags', function(){
         echo 'Hola mundo desde "Categories"';
     });
     
