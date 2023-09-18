@@ -17,12 +17,12 @@ class VehiclesController{
 
     static function getAll():array
     {
-    //------------- Define pagination queries
+    //------------- Define pagination parameters
         # If the parameter exists it takes its value, else it takes a default value defined in the system configurations 
         $page = (isset($_GET['page']) && ($_GET['page'] > 0)) ? ($_GET['page'] - 1) : constant('PAGE');
         $limit = (isset($_GET['limit'])) ? $_GET['limit'] : constant('LIMIT');
         
-    //------------- Handler queries
+    //------------- Handler parameters
         # The order of the data is defined for the parameters or it takes a default value
         $order = (isset($_GET['order'])) ? Util\get_order($_GET['order']) : '';
         
@@ -32,47 +32,73 @@ class VehiclesController{
         # Get the offset by multypling the page by the limit
         $offset = $page * $limit;
         
-        # Get tag parameter
-        $tagId = $_GET['tag'] ?? false;
-        
         //-------------- Get data
         # Get vehicles
-        $vehicles = ($tagId)
-            ? Vehicles::getVehiclesByTag($offset, $limit, $options, $_GET['tag'], $order)
-            : Vehicles::getAll($offset, $limit, $options, $order);
+        $vehicles = Vehicles::getAll($offset, $limit, $options, $order);
     
         # If the vehicles array has zero elements or its length is less than the $limit
         # Then the total of elements is the returned
-        $total = ((count($vehicles) < $limit || count($vehicles) == 0))
+        $total = ((count($vehicles) < $limit && $page == 0))
             ? count($vehicles)
-            : Vehicles::getTotal($options, $tagId);
+            : Vehicles::getTotal($options);
         
 
         if(is_int($total) && !isset($vehicles['Error']))
         {
-            if(isset($_GET['tag']))
-            {
-                $tag = Tags::getOne($_GET['tag']);
-                # If the tag filter exist, then its data is showed
-                return [
-                    'page' => ((int)$page + 1),
-                    'limit' => (int)$limit,
-                    'total' => (int)$total,
-                    # Tag is false if doesn't exist in the database. If it doesn't exists the parameter value is returned
-                    'tag' => ($tag) ? $tag : $tagId,
-                    'data' => $vehicles
-                ];
-            }
-            else
-            {
-                # If the tag filter doesn't exist, then its isn't showed
-                return [
-                    'page' => ((int)$page + 1),
-                    'limit' => (int)$limit,
-                    'total' => (int)$total,
-                    'data' => $vehicles
-                ];
-            }
+            # If the tag filter doesn't exist, then its isn't showed
+            return [
+                'page' => ((int)$page + 1),
+                'limit' => (int)$limit,
+                'total' => (int)$total,
+                'data' => $vehicles
+            ];
+        }
+        else
+        {
+            return [
+                'Error' => 500,
+                'Message' => 'An error was detected'
+            ];
+        }
+    }
+
+    static function getAllByTag($tagID):array
+    {
+    //------------- Define pagination parameters   
+        # If the parameter exists it takes its value, else it takes a default value defined in the system configurations 
+        $page = (isset($_GET['page']) && ($_GET['page'] > 0)) ? ($_GET['page'] - 1) : constant('PAGE');
+        $limit = (isset($_GET['limit'])) ? $_GET['limit'] : constant('LIMIT');
+        
+    //------------- Handler parameters
+        # The order of the data is defined for the parameters or it takes a default value
+        $order = (isset($_GET['order'])) ? Util\get_order($_GET['order']) : '';
+        
+        # Format the search options recived for parameters
+        $options = Util\formaterOptions($_GET ?? []);
+        
+        # Get the offset by multypling the page by the limit
+        $offset = $page * $limit;
+        
+        //-------------- Get data
+        # Get vehicles
+        $vehicles = Vehicles::getAllByTag($tagID, $offset, $limit, $options, $order);
+    
+        # If the vehicles array has zero elements or its length is less than the $limit
+        # Then the total of elements is the returned
+        $total = ((count($vehicles) < $limit && $page == 0))
+            ? count($vehicles)
+            : Vehicles::getTotalByTag($options);
+        
+
+        if(is_int($total) && !isset($vehicles['Error']))
+        {
+            # If the tag filter doesn't exist, then its isn't showed
+            return [
+                'page' => ((int)$page + 1),
+                'limit' => (int)$limit,
+                'total' => (int)$total,
+                'data' => $vehicles
+            ];
         }
         else
         {
@@ -91,7 +117,7 @@ class VehiclesController{
             $vehicle = Vehicles::getOne($id);
     
             if(!isset($vehicle['Error']) && isset($vehicle['id_vehicle'])){
-                $tags = Tags::getTagsByVehicle($id);
+                $tags = Tags::getAllByVehicle($id);
     
                 if(!isset($tags['Error'])){
                     return [

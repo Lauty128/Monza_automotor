@@ -81,6 +81,45 @@ class Vehicles{
         }
     }
 
+    static function getTotalByTag(array | null $options):int | array
+    {
+        # Call to the global variable $PDO
+        global $PDO;
+
+        # if $PDO is of type PDO, the following code will be executed
+        if($PDO instanceof PDO)
+        {
+        #----------- Create query
+            $sql = "SELECT COUNT(v.id_vehicle) as total FROM vehicle v ";
+
+            # This creates the JOIN with the mark table in case you need its
+            if(isset($options['mark']) || isset($options['word'])){
+                $sql .= 'JOIN mark m ON m.id_mark = v.id_mark ';
+            }
+            
+            if($options !== null){
+                $sql .= " ".Util\get_where($options);
+            }
+            
+        #----------- Execute query
+            $query = $PDO->query($sql);
+
+        #----------- Get the response of the 'total' field
+            $response = $query->fetch(PDO::FETCH_ASSOC)['total'];
+
+            # return response
+            return $response;
+        }
+        # if $PDO is of type PDOException, the following code will be executed
+        else if($PDO instanceof PDOException){
+            return [
+                'Error'=>500,
+                'Message'=>'Ocurrio un error al conectarse a la base de datos',
+                'Error-Message' => $PDO->getMessage()
+            ];
+        }
+    }
+
     
     static function getAll(int $offset, int $limit, array | null $options, string $order) : array
     {
@@ -104,9 +143,9 @@ class Vehicles{
 
                 # Add the pagination
                 $sql .= ' LIMIT :limit OFFSET :offset';
-                //var_dump($sql); exit();
+                
             #-------------------- PREPARE AND EXECUTE QUERY
-                # Preparamos the query
+                # Prepare the query
                 $query = $PDO->prepare($sql);
 
                 # Define the parameters values
@@ -132,7 +171,7 @@ class Vehicles{
         }
     }
 
-    static function getVehiclesByTag(int $offset, int $limit, array | null $options, string $id, string $order)
+    static function getAllByTag($tagID, int $offset, int $limit, array | null $options, string $order)
     {
         # Call to the global variable $PDO
         global $PDO;
@@ -158,11 +197,11 @@ class Vehicles{
                 # Add the pagination
                 $sql .= ' LIMIT :limit OFFSET :offset';
             #-------------------- PREPARE AND EXECUTE QUERY
-                # Preparamos the query
+                # Prepare the query
                 $query = $PDO->prepare($sql);
 
                 # Define the parameters values
-                $query->bindParam(':id', $id);
+                $query->bindParam(':id', $tagID);
                 $query->bindParam(':limit', $limit);
                 $query->bindParam(':offset', $offset);
 
@@ -200,7 +239,7 @@ class Vehicles{
                 WHERE v.id_vehicle = :id";
 
             #-------------------- PREPARE AND EXECUTE QUERY
-                # Preparamos the query
+                # Prepare the query
                 $query = $PDO->prepare($sql);
 
                 # Define the parameters values

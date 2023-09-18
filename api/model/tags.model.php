@@ -20,6 +20,11 @@ if(!isset($PDO)){
 
 class Tags{
     
+    static function getTotal():array
+    {
+        return [];
+    }
+
     static function getAll() : array
     {
         # Call to the global variable $PDO
@@ -50,7 +55,7 @@ class Tags{
         }
     }
 
-    static function getTagsByVehicle(string $id)
+    static function getAllByVehicle(string $vehicleID)
     {
         # Call to the global variable $PDO
         global $PDO;
@@ -69,7 +74,7 @@ class Tags{
                 $query = $PDO->prepare($sql);
 
                 # Define the parameters values
-                $query->bindParam(':id', $id);
+                $query->bindParam(':id', $vehicleID);
 
                 # EXecute the query
                 $query->execute();

@@ -15,6 +15,13 @@
         $response = VehiclesController::getAll();
         Flight::json($response);
     });
+
+    # --- Get all vehicles by one tag 
+    Flight::route('/vehicles/tag/@id', function($id){
+        include 'controller/vehicles.controller.php';
+        $response = VehiclesController::getAllByTag($id);
+        Flight::json($response);
+    });
     
     # --- Get one vehicle
     Flight::route('/vehicles/@id', function($id){
@@ -28,9 +35,11 @@
         echo 'Hola mundo desde "Categories"';
     });
 
-    # --- Get all categories
+    # --- Get all tags
     Flight::route('/tags', function(){
-        echo 'Hola mundo desde "Categories"';
+        include 'controller/tags.controller.php';
+        $response = TagsController::getAll();
+        Flight::json($response);
     });
     
     # --- Get all owners
