@@ -30,14 +30,12 @@ function get_where(array $options) : string
             $index++;
     }
 
-    //var_dump($where);
-    //exit();
     return $where;
 }   
 
-function get_join(array $options){
+// function get_join(array $options){
 
-}
+// }
 
 function get_order(string $option) : string
 {

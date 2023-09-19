@@ -1,5 +1,4 @@
 <?php 
-
     # ------------ System configs
     require 'config/app.php';
 
@@ -8,6 +7,7 @@
 
     # ------------ Is more important instance this variable
     $PDO;
+
  #******************* ENDPOINTS **************************    
     # --- Get all vehicles
     Flight::route('/vehicles', function(){
@@ -17,16 +17,16 @@
     });
 
     # --- Get all vehicles by one tag 
-    Flight::route('/vehicles/tag/@id', function($id){
+    Flight::route('/vehicles/tag/@tagID', function($tagID){
         include 'controller/vehicles.controller.php';
-        $response = VehiclesController::getAllByTag($id);
+        $response = VehiclesController::getAllByTag($tagID);
         Flight::json($response);
     });
     
     # --- Get one vehicle
-    Flight::route('/vehicles/@id', function($id){
+    Flight::route('/vehicles/@vehicleID', function($vehicleID){
         include 'controller/vehicles.controller.php';
-        $response = VehiclesController::getOne($id);
+        $response = VehiclesController::getOne($vehicleID);
         Flight::json($response);
     });
     

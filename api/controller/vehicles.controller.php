@@ -15,6 +15,9 @@ include 'utils/data.util.php';
 
 class VehiclesController{
 
+    ////////////////////////////////////////////////////////
+    //////////////////// GET ALL ///////////////////////////
+    ////////////////////////////////////////////////////////
     static function getAll():array
     {
     //------------- Define pagination parameters
@@ -36,7 +39,7 @@ class VehiclesController{
         # Get vehicles
         $vehicles = Vehicles::getAll($offset, $limit, $options, $order);
     
-        # If the vehicles array has zero elements or its length is less than the $limit
+        # If the vehicles array has zero elements or its length is less than the $limit (in the page 0)
         # Then the total of elements is the returned
         $total = ((count($vehicles) < $limit && $page == 0))
             ? count($vehicles)
@@ -45,7 +48,6 @@ class VehiclesController{
 
         if(is_int($total) && !isset($vehicles['Error']))
         {
-            # If the tag filter doesn't exist, then its isn't showed
             return [
                 'page' => ((int)$page + 1),
                 'limit' => (int)$limit,
@@ -62,6 +64,9 @@ class VehiclesController{
         }
     }
 
+    ///////////////////////////////////////////////////////////////
+    /////////////////////// GET ALL BY TAG ////////////////////////
+    ///////////////////////////////////////////////////////////////
     static function getAllByTag($tagID):array
     {
     //------------- Define pagination parameters   
@@ -83,7 +88,7 @@ class VehiclesController{
         # Get vehicles
         $vehicles = Vehicles::getAllByTag($tagID, $offset, $limit, $options, $order);
     
-        # If the vehicles array has zero elements or its length is less than the $limit
+        # If the vehicles array has zero elements or its length is less than the $limit (in the page 0)
         # Then the total of elements is the returned
         $total = ((count($vehicles) < $limit && $page == 0))
             ? count($vehicles)
@@ -92,7 +97,6 @@ class VehiclesController{
 
         if(is_int($total) && !isset($vehicles['Error']))
         {
-            # If the tag filter doesn't exist, then its isn't showed
             return [
                 'page' => ((int)$page + 1),
                 'limit' => (int)$limit,
@@ -109,14 +113,16 @@ class VehiclesController{
         }
     }
 
+    ////////////////////////////////////////////////////////
+    //////////////////// GET ONE ///////////////////////////
+    ////////////////////////////////////////////////////////
     static function getOne($id)
     {  
-    //-------------- Send variables to the Model
-        # Get total of data
         try{
             $vehicle = Vehicles::getOne($id);
     
             if(!isset($vehicle['Error']) && isset($vehicle['id_vehicle'])){
+                # Get a list of tags wich has the vehicle
                 $tags = Tags::getAllByVehicle($id);
     
                 if(!isset($tags['Error'])){

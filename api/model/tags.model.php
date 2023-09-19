@@ -25,13 +25,24 @@ class Tags{
         return [];
     }
 
+      /////////////////////////////////////////////// 
+     /////////////////// GET ALL ///////////////////
+    ///////////////////////////////////////////////
     static function getAll() : array
     {
         # Call to the global variable $PDO
         global $PDO;
 
-        # if $PDO is of type PDO, the following code will be executed
-        if($PDO instanceof PDO){
+        # if $PDO is of PDOException type, the following code will be executed
+        if($PDO instanceof PDOException){
+            return [
+                'Error'=>500,
+                'Message'=>'Ocurrio un error al conectarse a la base de datos',
+                'Error-Message' => $PDO->getMessage()
+            ];
+        }
+
+        # if $PDO isn't of PDOException type, then will be of PDO type
             #------------------- CREATE QUERY
                 # Create the basic query
                 $sql = "SELECT * FROM tag";
@@ -44,24 +55,26 @@ class Tags{
 
             # Return response;
             return $data;
-        }
-        # if $PDO is of type PDOException, the following code will be executed
-        else if($PDO instanceof PDOException){
+    }
+
+      /////////////////////////////////////////////////////////
+     /////////////////// GET ALL BY VEHICLE //////////////////
+    /////////////////////////////////////////////////////////
+    static function getAllByVehicle(string $vehicleID)
+    {
+        # Call to the global variable $PDO
+        global $PDO;
+
+        # if $PDO is of PDOException type, the following code will be executed
+        if($PDO instanceof PDOException){
             return [
                 'Error'=>500,
                 'Message'=>'Ocurrio un error al conectarse a la base de datos',
                 'Error-Message' => $PDO->getMessage()
             ];
         }
-    }
 
-    static function getAllByVehicle(string $vehicleID)
-    {
-        # Call to the global variable $PDO
-        global $PDO;
-
-        # if $PDO is of type PDO, the following code will be executed
-        if($PDO instanceof PDO){
+        # if $PDO isn't of PDOException type, then will be of PDO type
             #------------------- CREATE QUERY
                 # Create the basic query
                 $sql = "SELECT t.id_tag, t.tag as name
@@ -84,24 +97,26 @@ class Tags{
 
             # Return response;
             return $data;
-        }
-        # if $PDO is of type PDOException, the following code will be executed
-        else if($PDO instanceof PDOException){
+    }
+
+      ///////////////////////////////////////////////
+     /////////////////// GET ONE /////////////////// 
+    ///////////////////////////////////////////////  
+    static function getOne($id)
+    {
+        # Call to the global variable $PDO
+        global $PDO;
+
+        # if $PDO is of PDOException type, the following code will be executed
+        if($PDO instanceof PDOException){
             return [
                 'Error'=>500,
                 'Message'=>'Ocurrio un error al conectarse a la base de datos',
                 'Error-Message' => $PDO->getMessage()
             ];
         }
-    }
 
-    static function getOne($id)
-    {
-        # Call to the global variable $PDO
-        global $PDO;
-
-        # if $PDO is of type PDO, the following code will be executed
-        if($PDO instanceof PDO){
+        # if $PDO isn't of PDOException type, then will be of PDO type
             #------------------- CREATE QUERY
                 # Create the basic query
                 $sql = "SELECT * 
@@ -123,15 +138,6 @@ class Tags{
 
             # Return response;
             return $data;
-        }
-        # if $PDO is of type PDOException, the following code will be executed
-        else if($PDO instanceof PDOException){
-            return [
-                'Error'=>500,
-                'Message'=>'Ocurrio un error al conectarse a la base de datos',
-                'Error-Message' => $PDO->getMessage()
-            ];
-        }
     }
 
 }

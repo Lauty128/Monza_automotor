@@ -31,103 +31,35 @@ use PDO, PDOException;
 use DB\Database;
 use Util;
 
-#----- BD CONNECTION
+#--------- BD CONNECTION -------------
 if(!isset($PDO)){
     require 'config/database.php';
     $database = new Database();
     $PDO = $database->connect();
 }
+#-------------------------------------
 
-#Includes
 
 class Vehicles{
 
-    static function getTotal(array | null $options):int | array
-    {
-        # Call to the global variable $PDO
-        global $PDO;
-
-        # if $PDO is of type PDO, the following code will be executed
-        if($PDO instanceof PDO)
-        {
-        #----------- Create query
-            $sql = "SELECT COUNT(v.id_vehicle) as total FROM vehicle v ";
-
-            # This creates the JOIN with the mark table in case you need its
-            if(isset($options['mark']) || isset($options['word'])){
-                $sql .= 'JOIN mark m ON m.id_mark = v.id_mark ';
-            }
-            
-            if($options !== null){
-                $sql .= " ".Util\get_where($options);
-            }
-            
-        #----------- Execute query
-            $query = $PDO->query($sql);
-
-        #----------- Get the response of the 'total' field
-            $response = $query->fetch(PDO::FETCH_ASSOC)['total'];
-
-            # return response
-            return $response;
-        }
-        # if $PDO is of type PDOException, the following code will be executed
-        else if($PDO instanceof PDOException){
-            return [
-                'Error'=>500,
-                'Message'=>'Ocurrio un error al conectarse a la base de datos',
-                'Error-Message' => $PDO->getMessage()
-            ];
-        }
-    }
-
-    static function getTotalByTag(array | null $options):int | array
-    {
-        # Call to the global variable $PDO
-        global $PDO;
-
-        # if $PDO is of type PDO, the following code will be executed
-        if($PDO instanceof PDO)
-        {
-        #----------- Create query
-            $sql = "SELECT COUNT(v.id_vehicle) as total FROM vehicle v ";
-
-            # This creates the JOIN with the mark table in case you need its
-            if(isset($options['mark']) || isset($options['word'])){
-                $sql .= 'JOIN mark m ON m.id_mark = v.id_mark ';
-            }
-            
-            if($options !== null){
-                $sql .= " ".Util\get_where($options);
-            }
-            
-        #----------- Execute query
-            $query = $PDO->query($sql);
-
-        #----------- Get the response of the 'total' field
-            $response = $query->fetch(PDO::FETCH_ASSOC)['total'];
-
-            # return response
-            return $response;
-        }
-        # if $PDO is of type PDOException, the following code will be executed
-        else if($PDO instanceof PDOException){
-            return [
-                'Error'=>500,
-                'Message'=>'Ocurrio un error al conectarse a la base de datos',
-                'Error-Message' => $PDO->getMessage()
-            ];
-        }
-    }
-
-    
+      ///////////////////////////////////////////////////
+     ///////////////////// GET ALL /////////////////////
+    ///////////////////////////////////////////////////
     static function getAll(int $offset, int $limit, array | null $options, string $order) : array
     {
         # Call to the global variable $PDO
         global $PDO;
 
-        # if $PDO is of type PDO, the following code will be executed
-        if($PDO instanceof PDO){
+        # if $PDO is of PDOException type, the following code will be executed
+        if($PDO instanceof PDOException){
+            return [
+                'Error'=>500,
+                'Message'=>'Ocurrio un error al conectarse a la base de datos',
+                'Error-Message' => $PDO->getMessage()
+            ];
+        }
+
+        # if $PDO isn't of PDOException type, then will be of PDO type
             #------------------- CREATE QUERY
                 # Create the basic query
                 $sql = "SELECT v.id_vehicle,v.id_mark,m.mark,v.version,v.model,v.engine,v.image,v.traction,v.price
@@ -160,24 +92,27 @@ class Vehicles{
 
             # Return response;
             return $data;
-        }
-        # if $PDO is of type PDOException, the following code will be executed
-        else if($PDO instanceof PDOException){
+    }
+
+      //////////////////////////////////////////////////////////
+     ///////////////////// GET ALL BY TAG /////////////////////
+    //////////////////////////////////////////////////////////
+    static function getAllByTag
+            ($tagID, int $offset, int $limit, array | null $options, string $order)
+    {
+        # Call to the global variable $PDO
+        global $PDO;
+
+        # if $PDO is of PDOException type, the following code will be executed
+        if($PDO instanceof PDOException){
             return [
                 'Error'=>500,
                 'Message'=>'Ocurrio un error al conectarse a la base de datos',
                 'Error-Message' => $PDO->getMessage()
             ];
         }
-    }
 
-    static function getAllByTag($tagID, int $offset, int $limit, array | null $options, string $order)
-    {
-        # Call to the global variable $PDO
-        global $PDO;
-
-        # if $PDO is of type PDO, the following code will be executed
-        if($PDO instanceof PDO){
+        # if $PDO isn't of PDOException type, then will be of PDO type
             #------------------- CREATE QUERY
                 # Create the basic query
                 $sql = "SELECT v.id_vehicle,v.id_mark,m.mark,v.version,v.model,v.engine,v.image,v.traction,v.price
@@ -213,24 +148,26 @@ class Vehicles{
 
             # Return response;
             return $data;
-        }
-        # if $PDO is of type PDOException, the following code will be executed
-        else if($PDO instanceof PDOException){
+    }
+
+      //////////////////////////////////////////////////////
+     /////////////////// GET ONE ////////////////////////// 
+    //////////////////////////////////////////////////////  
+    static function getOne($id)
+    {
+        # Call to the global variable $PDO
+        global $PDO;
+
+        # if $PDO is of PDOException type, the following code will be executed
+        if($PDO instanceof PDOException){
             return [
                 'Error'=>500,
                 'Message'=>'Ocurrio un error al conectarse a la base de datos',
                 'Error-Message' => $PDO->getMessage()
             ];
         }
-    }
 
-    static function getOne($id)
-    {
-        # Call to the global variable $PDO
-        global $PDO;
-
-        # if $PDO is of type PDO, the following code will be executed
-        if($PDO instanceof PDO){
+        # if $PDO isn't of PDOException type, then will be of PDO type
             #------------------- CREATE QUERY
                 # Create the basic query
                 $sql = "SELECT v.*, m.mark
@@ -253,14 +190,89 @@ class Vehicles{
 
             # Return response;
             return $data;
-        }
-        # if $PDO is of type PDOException, the following code will be executed
-        else if($PDO instanceof PDOException){
+    }
+
+      ////////////////////////////////////////////////////////
+     /////////////////// GET TOTAL //////////////////////////
+    ////////////////////////////////////////////////////////
+    static function getTotal(array | null $options):int | array
+    {
+        # Call to the global variable $PDO
+        global $PDO;
+
+        # if $PDO is of PDOException type, the following code will be executed
+        if($PDO instanceof PDOException){
             return [
                 'Error'=>500,
                 'Message'=>'Ocurrio un error al conectarse a la base de datos',
                 'Error-Message' => $PDO->getMessage()
             ];
         }
+
+        # if $PDO isn't of PDOException type, then will be of PDO type
+        #----------- Create query
+            $sql = "SELECT COUNT(v.id_vehicle) as total FROM vehicle v ";
+
+            # This creates the JOIN with the mark table in case you need its
+            if(isset($options['mark']) || isset($options['word'])){
+                $sql .= 'JOIN mark m ON m.id_mark = v.id_mark ';
+            }
+            
+            if($options !== null){
+                $sql .= " ".Util\get_where($options);
+            }
+            
+        #----------- Execute query
+            $query = $PDO->query($sql);
+
+        #----------- Get the response of the 'total' field
+            $response = $query->fetch(PDO::FETCH_ASSOC)['total'];
+
+            # return response
+            return $response;
+        
     }
+
+      ///////////////////////////////////////////////////////////////
+     /////////////////// GET TOTAL BY TAG //////////////////////////
+    ///////////////////////////////////////////////////////////////
+    static function getTotalByTag(array | null $options):int | array
+    {
+        # Call to the global variable $PDO
+        global $PDO;
+
+        # if $PDO is of PDOException type, the following code will be executed
+        if($PDO instanceof PDOException){
+            return [
+                'Error'=>500,
+                'Message'=>'Ocurrio un error al conectarse a la base de datos',
+                'Error-Message' => $PDO->getMessage()
+            ];
+        }
+
+        # if $PDO isn't of PDOException type, then will be of PDO type
+        #----------- Create query
+            $sql = "SELECT COUNT(vt.id_vehicle) as total
+            FROM vehicle_tag vt
+            JOIN vehicle v ON vt.id_vehicle = v.id_vehicle";
+
+            # This creates the JOIN with the mark table in case you need its
+            if(isset($options['mark']) || isset($options['word'])){
+                $sql .= ' JOIN mark m ON m.id_mark = v.id_mark ';
+            }
+            
+            if($options !== null){
+                $sql .= " ".Util\get_where($options);
+            }
+            
+        #----------- Execute query
+            $query = $PDO->query($sql);
+
+        #----------- Get the response of the 'total' field
+            $response = $query->fetch(PDO::FETCH_ASSOC)['total'];
+
+            # return response
+            return $response;
+    }
+
 }
