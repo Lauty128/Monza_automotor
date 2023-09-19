@@ -236,7 +236,7 @@ class Vehicles{
       ///////////////////////////////////////////////////////////////
      /////////////////// GET TOTAL BY TAG //////////////////////////
     ///////////////////////////////////////////////////////////////
-    static function getTotalByTag(array | null $options):int | array
+    static function getTotalByTag(string $tagID, array | null $options):int | array
     {
         # Call to the global variable $PDO
         global $PDO;
@@ -261,11 +261,13 @@ class Vehicles{
                 $sql .= ' JOIN mark m ON m.id_mark = v.id_mark ';
             }
             
-            if($options !== null){
+            if($options == null){ $sql.= " WHERE vt.id_tag = '$tagID'"; }
+            else{ 
                 $sql .= " ".Util\get_where($options);
+                $sql.= " AND vt.id_tag = '$tagID'";
             }
-            
-        #----------- Execute query
+
+            #----------- Execute query
             $query = $PDO->query($sql);
 
         #----------- Get the response of the 'total' field

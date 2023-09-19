@@ -92,7 +92,7 @@ class VehiclesController{
         # Then the total of elements is the returned
         $total = ((count($vehicles) < $limit && $page == 0))
             ? count($vehicles)
-            : Vehicles::getTotalByTag($options);
+            : Vehicles::getTotalByTag($tagID, $options);
         
 
         if(is_int($total) && !isset($vehicles['Error']))
